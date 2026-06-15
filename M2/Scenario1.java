@@ -18,14 +18,47 @@ public class Scenario1 extends BaseClass {
         // Step 2: Add/commit your outline of comments (required for full credit)
         // Step 3: Add code to solve the problem (add/commit as needed)
         // Start Solution Edits
-       
+        
+        // Date: June 14 
+        //Ok so I need to track the first odd number encountered so 
+        // I can avoid printing a comma before it, but for every 
+        // odd number after that I need to print a comma and a space before it. 
+        // I can use a boolean variable to track whether I've printed the first odd number or not.
+        // I'll need to loop through the array and check if each number is odd. 
+        // If it is, I'll check the boolean variable to determine 
+        // whether to print a comma before it or not, and then 
+        // I'll print the number itself. After printing the first 
+        // odd number, I'll set the boolean variable to true so 
+        // that subsequent odd numbers will have a comma printed before them.
+        // On every loop I'll check if the number is odd --> if so 
+        // then check if it's the first odd number --> if it is, 
+        // print it and set first to false --> if it's not, print 
+        // a comma and a space, then print the number.
+        boolean first = true;
+        for (int i = 0; i < arr.length; i++)
+        {
+            if (arr[i] % 2 != 0)
+            {
+                if (first) 
+                {
+                    System.out.print(arr[i]);
+                    first = false;
+                }
+                else
+                {
+                    System.out.print(", " + arr[i]);
+                }
+            }
+        }
+        // This works, but it does allow repetions of odd numbers 
+        // in arrays 3 and 4, which may not be ideal.
 
         // End Solution Edits
         System.out.println("");
         System.out.println("______________________________________");
     }
     public static void main(String[] args) {
-        final String ucid = "mt85"; // <-- change to your UCID
+        final String ucid = "am4239"; // <-- change to your UCID
         // no edits below this line
         printHeader(ucid, 1);
         printOdds(array1,1);
