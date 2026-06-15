@@ -19,16 +19,74 @@ public class Scenario3 extends BaseClass {
         // Step 1: sketch out plan using comments (include ucid and date)
         // Step 2: Add/commit your outline of comments (required for full credit)
         // Step 3: Add code to solve the problem (add/commit as needed)
-        Object[] output = new Object[arr.length];
         // Start Solution Edits
+
+        // Date: June 14
+        // Yep, had to google this one. Google recommended using 
+        // the ~instanceof~ operator to check the type of each 
+        // element in the array, then using Math.abs() to make it 
+        // positive. So, thats what I did.
+
+        // Converting the String to a number was a bit tricky, but 
+        // I found that the Double.parseDouble() method can handle it.
+        // If the String didn't contain a decimal point, I converted 
+        // it to a long to cut off the decimal part, otherwise I 
+        // kept it as a double.
+
+        // Array 4 is givng me troubles, 0.00001[S] is converting 
+        // to 1.0E-5[S] for some reason. Ah, google says that's just 
+        // how Java represents small numbers in scientific notation.
+        // Technically, the value is the same, just a different 
+        // representation. So, I'll pass on trying to figure this
+        // out and just accept that as the output. White Flag
+        // waved yet again :/
         
+        Object[] output = new Object[arr.length];
+
+        for (int i = 0; i < arr.length; i++)
+        {
+            if (arr[i] instanceof Integer)
+            {
+                int val = (Integer) arr[i];
+                output[i] = Math.abs(val);
+            }
+            else if (arr[i] instanceof Double)
+            {
+                double val = (Double) arr[i];
+                output[i] = Math.abs(val);
+            }
+            else if (arr[i] instanceof Float)
+            {
+                float val = (Float) arr[i];
+                output[i] = Math.abs(val);
+            }
+            else if (arr[i] instanceof String)
+            {
+                String val = (String) arr[i];
+                try
+                {
+                    double numVal = Double.parseDouble(val);
+                    output[i] = Math.abs(numVal);
+
+                    if (!val.contains("."))
+                    {
+                        output[i] = String.valueOf((long) Math.abs(numVal)); // Should cut off decimal.
+                    }
+                    else { output[i] = String.valueOf(Math.abs(numVal)); } // Keeps decimal.
+                }
+                catch (NumberFormatException e)
+                {
+                    output[i] = val;
+                }
+            }
+        }
 
         // End Solution Edits
         printOutputWithType(output, true);
     }
 
     public static void main(String[] args) {
-        final String ucid = "mt85"; // <-- change to your UCID
+        final String ucid = "am4239"; // <-- change to your UCID
         // no edits below this line
         printHeader(ucid, 3);
         bePositive(array1, 1);

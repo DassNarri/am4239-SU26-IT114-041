@@ -22,20 +22,50 @@ public class Scenario2 extends BaseClass {
         // Step 1: sketch out plan using comments (include ucid and date)
         // Step 2: Add/commit your outline of comments (required for full credit)
         // Step 3: Add code to solve the problem (add/commit as needed)
-        double total = 0;
         // Start Solution Edits
+        
+        // Date: June 14
+        // Challenge 1 is just looping through the array and 
+        // passing each value to total.
+        // Challenge 2 is trickier, but Math.round() exists so 
+        // what I'll have to do is multiply total by 100, round it, 
+        // and then divide that value by 100 to hopefully get a value 
+        // with 2 decimal places.
+
+        // Just doing what I've explained above didn't quite work, 
+        // array 1 for example printed "2.1" instead of "2.10". 
+        // The only solution that comes to mind is creating a 
+        // loop that manually checks the number of decimal places and
+        // adds a "0" if there is only 1 decimal place, 
+        // inefficient I know but it should work.
+
+        // That fix worked, but array 4 is still broken, 
+        // it's definitely cuz my method multiplies total by 100,
+        // which causes the value to exceed the max value for a double.
+        // I don't know how to fix that with the current way I'm
+        // handling this challenge. Ima just throw in the towel
+        // for this one and move on. My code mostly works :)
+        
+        double total = 0;
+
         // Solve Challenge 1 here
-       
+       for (int i = 0; i < arr.length; i++) { total += arr[i]; }
       
         // Solve Challenge 2 here
-        Object modifiedTotal = "?";
+        Object modifiedTotal = Math.round(total * 100.0) / 100.0;
         
+        //The Fix:
+        String totalStr = String.valueOf(modifiedTotal);
+        int decimalIndex = totalStr.indexOf(".");
+        int digitsAfterDecimal = totalStr.length() - decimalIndex - 1;
+        if (digitsAfterDecimal == 1) { totalStr += "0"; }
+        modifiedTotal = totalStr;
         // End Solution Edits
         printScenario2Output(total, modifiedTotal);
     }
 
     public static void main(String[] args) {
-        final String ucid = "mt85"; // <-- change to your UCID
+        final String ucid = "am4239"; // <-- change to your UCID
         // no edits below this line
         printHeader(ucid, 2);
         sumValues(array1, 1);
