@@ -29,11 +29,23 @@ public class Scenario4 extends BaseClass {
         // Step 1: sketch out plan using comments (include ucid and date)
         // Step 2: Add/commit your outline of comments (required for full credit)
         // Step 3: Add code to solve the problem (add/commit as needed)
+        
+        // Start Solution Edits
+        
+        // Date: June 15
+        // First I'll need to strip non-alphanumeric characters except spaces from text.
+        // ReplaceAll() method handles this well. 
+        // 
+        
         String placeholderForModifiedPhrase = "";
         String placeholderForMiddleCharacters = "";
         
+        String text = arr[i];
+
+        text = text.replaceAll("[^a-zA-Z0-9 ]", "");
+        text = text.replaceAll("\\s+", " ").trim();
+
         for(int i = 0; i <arr.length; i++){
-            // Start Solution Edits
             
             // End Solution Edits
             System.out.println(String.format("Index[%d] \"%s\" | Middle: \"%s\"",i, placeholderForModifiedPhrase, placeholderForMiddleCharacters));
@@ -43,7 +55,7 @@ public class Scenario4 extends BaseClass {
     }
 
     public static void main(String[] args) {
-        final String ucid = "mt85"; // <-- change to your UCID
+        final String ucid = "am4239"; // <-- change to your UCID
         // No edits below this line
         printHeader(ucid, 4);
 
