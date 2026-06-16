@@ -33,21 +33,67 @@ public class Scenario4 extends BaseClass {
         // Start Solution Edits
         
         // Date: June 15
-        // First I'll need to strip non-alphanumeric characters except spaces from text.
-        // ReplaceAll() method handles this well. 
+        // First I'll need to strip non-alphanumeric characters except spaces from text. Then 
+        // Remove leading and trailing spaces, and replace multiple spaces with a single space.
+        // The replaceAll() and trim() methods handle this well. 
+        // I'll need to put the above into the for loop to iterate through each string in the array.
+
+        // Now to convert cleaned up text to Title Case. An if statement is easy to use to check if the cleaned 
+        // up text is empty or not, if it is, assign an empty string to placeholderForModifiedPhrase, 
+        // otherwise split the cleaned up text into words, loop through each word and capitalize the first letter 
+        // and make the rest of the letters lowercase, then join the words back together with spaces in between
+        // and assign that to placeholderForModifiedPhrase.
+
         // 
         
         String placeholderForModifiedPhrase = "";
         String placeholderForMiddleCharacters = "";
-        
-        String text = arr[i];
 
-        text = text.replaceAll("[^a-zA-Z0-9 ]", "");
-        text = text.replaceAll("\\s+", " ").trim();
+        for(int i = 0; i <arr.length; i++)
+        {
+            String text = arr[i];
 
-        for(int i = 0; i <arr.length; i++){
+            text = text.replaceAll("[^a-zA-Z0-9 ]", ""); // Remove non-alphanumeric characters except spaces
+            text = text.trim(); // Removes leading and trailing spaces
+            text = text.replaceAll("\\s+", " "); // Replaces multiple spaces with a single space
             
-            // End Solution Edits
+            if (!text.isEmpty()) 
+            {
+                String[] words = text.split(" ");
+                StringBuilder sb = new StringBuilder();
+                for (int w = 0; w < words.length; w++) 
+                {
+                    String word = words[w];
+                    if (word.length() > 0) 
+                    {
+                        String capitalized = word.substring(0, 1).toUpperCase() + word.substring(1).toLowerCase();
+                        sb.append(capitalized);
+                        if (w < words.length - 1) 
+                        {
+                            sb.append(" ");
+                        }
+                    }
+                }
+                placeholderForModifiedPhrase = sb.toString();
+            } 
+            else { placeholderForModifiedPhrase = ""; }
+
+            //~~Extra Credit Part~~
+            int len = placeholderForModifiedPhrase.length();
+            if (len >= 5) 
+            {
+                int mid = len / 2;
+                placeholderForMiddleCharacters = placeholderForModifiedPhrase.substring(mid - 1, mid + 2);
+            } 
+            else if (len >= 3) 
+            {
+                placeholderForMiddleCharacters = placeholderForModifiedPhrase.substring(1, len - 1);
+            } 
+            else 
+            {
+                placeholderForMiddleCharacters = "Not enough characters";
+            }
+                // End Solution Edits
             System.out.println(String.format("Index[%d] \"%s\" | Middle: \"%s\"",i, placeholderForModifiedPhrase, placeholderForMiddleCharacters));
         }
         System.out.println("");
