@@ -44,7 +44,13 @@ public class Scenario4 extends BaseClass {
         // and make the rest of the letters lowercase, then join the words back together with spaces in between
         // and assign that to placeholderForModifiedPhrase.
 
-        // 
+        // Last is the bonus section. First, I'll check the length of placeholderForModifiedPhrase since it is 
+        // already fully cleaned up and formatted. If the length is 5 or more, I can find the exact center index 
+        // by dividing the length by 2, and use substring to grab one character before the center, the center itself, 
+        // and one character after to get the middle 3. Otherwise, if the length is at least 3, I'll handle shorter 
+        // phrases by using substring to exclude just the very first and very last characters. Finally, if the phrase 
+        // is too short to even do that (less than 3 characters), I'll assign the exact phrase 
+        // "Not enough characters" to placeholderForMiddleCharacters.
         
         String placeholderForModifiedPhrase = "";
         String placeholderForMiddleCharacters = "";
