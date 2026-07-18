@@ -4,6 +4,17 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.ConcurrentHashMap;
+    // Date: July 9th   |    UCID: am4239
+    // Changes done to this file:
+    //
+    // Added handleCoinFlip() method which uses Math.random() for a 50/50 choice between Heads and Tails, 
+    // the outcome message is formatted and sent to everyone from the server via broadcast() method.
+    //
+    // Added handlePrivateMessage() method which takes the sender, targetIdStr, and message as parameters.
+    // It sends the PM to the target using the overloaded broadcast() method, and sends a confirmation back 
+    // to the sender. This only happens if the target is connected, otherwise an error message is sent back to the sender.
+    //
+    // 
 
 public class Server {
     private int port = 3000;
@@ -61,6 +72,22 @@ public class Server {
         connectedClients.values().removeIf(serverThread -> !serverThread.sendToClient(formatted));
     }
 
+    /** Overloaded broadcast method that only sends the message to the sender and the target recipient. */
+    private synchronized void broadcast(ServerThread sender, ServerThread receiver, String message) {
+        // Keeps the message "from the Server" as required
+        final String formatted = String.format("Server: %s", message);
+        
+        // Sends the PM to the receiver
+        if (receiver != null) {
+            receiver.sendToClient(formatted);
+        }
+        
+        // If PM succesfully reaches the target, a message is sent back to the sender
+        if (sender != null) {
+            sender.sendToClient(String.format("Server: (Sent to User[%d]): %s", receiver.getClientId(), message));
+        }
+    }
+
     // handle* methods are the interface ServerThread uses to trigger Server actions
 
     /**
@@ -93,9 +120,64 @@ public class Server {
         broadcast(sender, sb.toString());
     }
 
+    /** Rolls a 50/50 coin flip and broadcasts the outcome to everyone. */
+    protected synchronized void handleCoinFlip(ServerThread sender) {
+        // Generates a 1 or 0 randomly
+        String result = (Math.random() < 0.5) ? "Heads" : "Tails";
+        
+        // Formats the message exactly like so: <who> flipped a coin and got <result>
+        String broadcastMessage = String.format("User[%s] flipped a coin and got %s", sender.getClientId(), result);
+        
+        // Passing null ensures the message comes from the Server
+        broadcast(null, broadcastMessage);
+    }
+
     /** Broadcasts a chat message from the sender to all clients. */
     protected synchronized void handleMessage(ServerThread sender, String text) {
         broadcast(sender, text);
+    }
+
+    /** Handles the private message request and forwards it to the overloaded broadcast method. */
+    protected synchronized void handlePrivateMessage(ServerThread sender, String targetIdStr, String message) {
+        try {
+            long targetId = Long.parseLong(targetIdStr);
+            ServerThread targetClient = connectedClients.get(targetId);
+
+            if (targetClient != null) {
+                String pmPayload = String.format("PM from User[%d]: %s", sender.getClientId(), message);
+                
+                // Passes the message to the overloaded broadcast() method
+                broadcast(sender, targetClient, pmPayload);
+            } else {
+                sender.sendToClient(String.format("Server: Error - User with ID [%d] is not connected.", targetId));
+            }
+        } catch (NumberFormatException e) {
+            sender.sendToClient("Server: Error - Target ID must be a numeric value.");
+        }
+    }
+
+    /** Scrambles the characters of a message randomly and broadcasts the result to everyone */
+    protected synchronized void handleShuffleText(ServerThread sender, String text) {
+        // Converts the text into a list of individual characters
+        java.util.List<Character> characters = new java.util.ArrayList<>();
+        for (char c : text.toCharArray()) {
+            characters.add(c);
+        }
+        
+        // Uses the Collections shuffle method to scramble the list items into a completely random order
+        java.util.Collections.shuffle(characters);
+        
+        // Rebuilds the scrambled characters back into a standard String layout
+        StringBuilder shuffledSB = new StringBuilder();
+        for (char c : characters) {
+            shuffledSB.append(c);
+        }
+        
+        // Formats the shuffled text accordingly
+        String broadcastMessage = String.format("Shuffled from User[%d]: %s", sender.getClientId(), shuffledSB.toString());
+        
+        // Passes the now shuffled and formated message to the broadcast method; Passing null ensures the message comes from the Server
+        broadcast(null, broadcastMessage);
     }
 
     public static void main(String[] args) {

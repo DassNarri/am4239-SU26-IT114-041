@@ -15,6 +15,19 @@ import M4.TextFX.Color;
 /**
  * Multi-client chat client using ObjectInputStream/ObjectOutputStream.
  */
+
+    // Date: July 9th   |    UCID: am4239
+    // Changes done to this file: 
+    //
+    // Added the /flip command to the client-side commands and implemented its functionality in the processClientCommand method. 
+    // The /flip command sends a request to the server to flip the provided text.
+    //
+    // Addded the /pm command to the client-side commands and implemented its functionality in the processClientCommand method.
+    // The /pm command allows the client to send a private message to a specific user by specifying the targetID and the message content.
+    //
+    // Added the /shuffle command to the client-side commands and implemented its functionality in the processClientCommand method.
+    // The /shuffle command sends a request to the server to shuffle the provided text, albeit, after some clean up of said text.
+
 public class Client {
     private Socket server = null;
     private ObjectOutputStream out = null;
@@ -32,7 +45,10 @@ public class Client {
         DISCONNECT("/disconnect"),
         QUIT("/quit"),
         USERS("/users"),
-        REVERSE("/reverse");
+        REVERSE("/reverse"),
+        FLIP("/flip"),
+        PM("/pm"),
+        SHUFFLE("/shuffle");
 
         private final String trigger;
 
@@ -127,6 +143,39 @@ public class Client {
                 // strip "/reverse" prefix and send remainder as the text to reverse
                 String reverseText = text.replace("/reverse", "").trim();
                 sendToServer(String.join(",", Constants.COMMAND_TRIGGER, "reverse", reverseText));
+                return true;
+            case FLIP:
+                // sends a request to the server to process the /flip command
+                sendToServer(String.join(",", Constants.COMMAND_TRIGGER, "flip"));
+                return true;
+            case PM:
+                // strips "/pm" prefix and trims whitespace; then splits the remaining text into 
+                // targetID and message. Requests the server to send a private message to the specified 
+                // targetID with the provided message.
+                String pmText = text.replace("/pm", "").trim();
+                
+                // splits text into two parts:[targetID, message]
+                String[] pmParts = pmText.split(" ", 2);
+
+                if (pmParts.length < 2) {
+                    System.out.println("Invalid format. Use: /pm <targetID> <message>");
+                } else {
+                    String targetID = pmParts[0].trim();
+                    String message = pmParts[1].trim();
+
+                    // requests the server to send a private message to the specified targetID with the provided message
+                    sendToServer(String.join(",", Constants.COMMAND_TRIGGER, "pm", targetID, message));
+                }
+                return true;
+            case SHUFFLE:
+                // strips "/shuffle" prefix and trims whitespace; then sends the remaining text to the server to shuffle.
+                String shuffleText = text.replace("/shuffle", "").trim();
+                if (shuffleText.isEmpty()) {
+                    System.out.println("Invalid format. Use: /shuffle <message>");
+                } else {
+                    // Packageed into - [cmd],shuffle,<message> - format and sent to the server for processing
+                    sendToServer(String.join(",", Constants.COMMAND_TRIGGER, "shuffle", shuffleText));
+                }
                 return true;
             default:
                 return false;

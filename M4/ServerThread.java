@@ -14,6 +14,21 @@ import M4.TextFX.Color;
  * Server-side handler for one connected client.
  * Each client gets its own thread so multiple clients can be served concurrently.
  */
+
+    // Date: July 9th   |    UCID: am4239
+    // Changes done to this file:
+    //
+    // Processed the /flip command sent from the client in the processCommand method. When the server receives a /flip command, 
+    // it calls the handleCoinFlip method in the Server class to handle the request.
+    //
+    // Processed the /pm command sent from the client in the processCommand method. When the server receives a /pm command,
+    // it extracts the targetID and message content from the commandData array and calls the handlePrivateMessage method in the Server 
+    // class to send a private message to the specified user.
+    //
+    // Processed the /shuffle command sent from the client in the processCommand method. When the server receives a /shuffle command,
+    // it extracts the text to shuffle from the commandData array and calls the handleShuffleText method in the Server class to shuffle the provided text.
+    //
+
 public class ServerThread extends Thread {
     private Socket client;
     private volatile boolean isRunning = false; // volatile so changes are visible across threads immediately
@@ -158,6 +173,26 @@ public class ServerThread extends Thread {
                 // join remaining segments back into the text to reverse
                 String relevantText = String.join(" ", Arrays.copyOfRange(commandData, 2, commandData.length));
                 server.handleReverseText(this, relevantText);
+                return true;
+            case "flip":
+                server.handleCoinFlip(this);
+                return true;
+            case "pm":
+                if (commandData.length >= 4) {
+                    String targetIDStr = commandData[2].trim();
+                    String pmText = String.join(" ", Arrays.copyOfRange(commandData, 3, commandData.length));
+                    server.handlePrivateMessage(this, targetIDStr, pmText);
+
+                } else {
+                    this.sendToClient("Server: Invalid formating received.");
+                }
+                return true;
+            case "shuffle":
+                if (commandData.length >= 3) {
+                    // Conviently recombines the segments in case the original text contained internal commas
+                    String textToShuffle = String.join(",", Arrays.copyOfRange(commandData, 2, commandData.length));
+                    server.handleShuffleText(this, textToShuffle);
+                }
                 return true;
             default:
                 return false;
