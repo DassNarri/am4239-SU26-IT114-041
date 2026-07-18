@@ -14,7 +14,8 @@ import java.util.concurrent.ConcurrentHashMap;
     // It sends the PM to the target using the overloaded broadcast() method, and sends a confirmation back 
     // to the sender. This only happens if the target is connected, otherwise an error message is sent back to the sender.
     //
-    // 
+    // Added handleShuffleText() method which takes the sender and text as parameters. It shuffles the characters 
+    // of the text randomly, formats the message, and broadcasts it to everyone from the server via broadcast() method.
 
 public class Server {
     private int port = 3000;
