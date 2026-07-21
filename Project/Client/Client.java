@@ -1,4 +1,4 @@
-package M5.MCCS.Part2.Client;
+package Project.Client;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -11,16 +11,27 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import M5.MCCS.Part2.Common.ConnectionPayload;
-import M5.MCCS.Part2.Common.Payload;
-import M5.MCCS.Part2.Common.PayloadType;
-import M5.MCCS.Part2.Common.TextFX;
-import M5.MCCS.Part2.Common.TextFX.Color;
-import M5.MCCS.Part2.Common.User;
+import Project.Common.ConnectionPayload;
+import Project.Common.Payload;
+import Project.Common.PayloadType;
+import Project.Common.RPSPayload;
+import Project.Common.TextFX;
+import Project.Common.TextFX.Color;
+import Project.Common.User;
+import Project.Common.Move;
 
 /**
  * Multi-client chat client using ObjectInputStream/ObjectOutputStream.
  */
+
+// Date: July 20th   |    UCID: am4239
+// Changes done to this file: 
+//
+// Added RPS_CHALLENGE (/rps), MOVE (/move), ACCEPT (/accept), DECLINE (/decline), and CANCEL (/cancel) to the Command enum.
+// Implemented parsing logic in processClientCommand to validate arguments and triggers for all RPS commands.
+// Added helper methods sendRPSChallenge, sendRPSMove, sendRPSAccept, and sendRPSCancel to wrap data in RPSPayload 
+// and transmit to the server.
+
 public enum Client {
     INSTANCE;
 
@@ -46,7 +57,12 @@ public enum Client {
         QUIT("/quit"),
         USERS("/users"),
         REVERSE("/reverse"),
-        SET_NAME("/name");
+        SET_NAME("/name"),
+        RPS_CHALLENGE("/rps"),
+        MOVE("/move"),
+        ACCEPT("/accept"),
+        DECLINE("/decline"),
+        CANCEL("/cancel");
 
         private final String trigger;
 
@@ -171,6 +187,40 @@ public enum Client {
                             TextFX.colorize("Name set to " + name + ".", Color.GREEN));
                 }
                 return true;
+            case RPS_CHALLENGE: {
+                String targetIdStr = text.replace("/rps", "").trim();
+                if (targetIdStr.isBlank()) {
+                    System.out.println(TextFX.colorize("Please specify a target client ID. Usage: /rps <target_id>", Color.RED));
+                } else {
+                    try {
+                        long targetId = Long.parseLong(targetIdStr);
+                        sendRPSChallenge(targetId);
+                    } catch (NumberFormatException e) {
+                        System.out.println(TextFX.colorize("Invalid target ID. Usage: /rps <target_id>", Color.RED));
+                    }
+                }
+                return true;
+            }
+            case MOVE: {
+                String moveStr = text.replace("/move", "").trim();
+                Move move = Move.fromText(moveStr);
+                if (move == null) {
+                    System.out.println(TextFX.colorize("Invalid move. Choose: rock, paper, or scissors", Color.RED));
+                } else {
+                    sendRPSMove(move);
+                }
+                return true;
+            }
+            case ACCEPT:
+                sendRPSAccept(true);
+                return true;
+
+            case DECLINE:
+                sendRPSAccept(false);
+                return true;
+            case CANCEL:
+                sendRPSCancel();
+                return true;
             default:
                 return false;
         }
@@ -239,6 +289,37 @@ public enum Client {
         } else {
             System.out.println("Not connected to server (hint: type `/connect host:port`)");
         }
+    }
+
+    /** Sends a game challenge payload targeting a specific user ID. */
+    private void sendRPSChallenge(long targetUser) throws IOException {
+        RPSPayload payload = new RPSPayload();
+        payload.setPayloadType(PayloadType.RPS_CHALLENGE);
+        payload.setTargetUser(targetUser);
+        sendToServer(payload);
+    }
+
+    /** Sends an acceptance or decline payload for an active RPS challenge. */
+    private void sendRPSAccept(boolean accepted) throws IOException {
+        RPSPayload payload = new RPSPayload();
+        payload.setPayloadType(PayloadType.RPS_ACCEPT);
+        payload.setAccepted(accepted);
+        sendToServer(payload);
+    }
+
+    /** Sends the player's selected move payload to the server. */
+    private void sendRPSMove(Move move) throws IOException {
+        RPSPayload payload = new RPSPayload();
+        payload.setPayloadType(PayloadType.RPS_MOVE);
+        payload.setMove(move);
+        sendToServer(payload);
+    }
+
+    /** Sends a request to cancel an ongoing RPS match. */
+    private void sendRPSCancel() throws IOException {
+        RPSPayload payload = new RPSPayload();
+        payload.setPayloadType(PayloadType.RPS_CANCEL);
+        sendToServer(payload);
     }
     // End region for send*() methods ===================================
 

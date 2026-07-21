@@ -1,4 +1,9 @@
-package M5.MCCS.Part2.Common;
+package Project.Common;
+
+// Date: July 20th   |    UCID: am4239
+// Changes done to this file: 
+//
+// Added new payload types for RPS functionality: RPS_CHALLENGE, RPS_ACCEPT, RPS_MOVE, and RPS_CANCEL.
 
 public enum PayloadType {
     CLIENT_CONNECT, // client requesting to connect to server (passing of initialization data
@@ -13,4 +18,8 @@ public enum PayloadType {
                   // (includes leaving client's id and name)
     SERVER_SYNC, // server notifying recipient of existing client
                  // (includes existing client's id and name) (silently)
+    RPS_CHALLENGE,
+    RPS_ACCEPT,
+    RPS_MOVE,
+    RPS_CANCEL,
 }

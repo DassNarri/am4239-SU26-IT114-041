@@ -1,19 +1,28 @@
-package M5.MCCS.Part2.Server;
+package Project.Server;
 
 import java.net.Socket;
 import java.util.Objects;
 import java.util.function.Consumer;
 
-import M5.MCCS.Part2.Common.ConnectionPayload;
-import M5.MCCS.Part2.Common.Constants;
-import M5.MCCS.Part2.Common.Payload;
-import M5.MCCS.Part2.Common.PayloadType;
+import Project.Common.ConnectionPayload;
+import Project.Common.Constants;
+import Project.Common.Payload;
+import Project.Common.PayloadType;
+import Project.Common.RPSPayload;
 
 /**
  * Server-side handler for one connected client.
  * Each client gets its own thread so multiple clients can be served
  * concurrently.
  */
+
+// Date: July 20th   |    UCID: am4239
+// Changes done to this file: 
+//
+// Added switch cases in processPayload to route incoming RPS payload types to corresponding processing methods.
+// Implemented processRPSChallenge, processRPSAccept, processRPSMove, and processRPSCancel to extract payload 
+// parameters and call Server.INSTANCE handlers.
+
 public class ServerThread extends BaseServerThread {
 
     private final Consumer<ServerThread> onInitializationComplete;
@@ -59,6 +68,18 @@ public class ServerThread extends BaseServerThread {
             case REVERSE:
                 processReverse(incoming);
                 break;
+            case RPS_CHALLENGE:
+                processRPSChallenge(incoming);
+                break;
+            case RPS_ACCEPT:
+                processRPSAccept(incoming);
+                break;
+            case RPS_MOVE:
+                processRPSMove(incoming);
+                break;
+            case RPS_CANCEL:
+                processRPSCancel(incoming);
+                break;
             default:
                 info("Received unsupported payload type: " + incoming.getPayloadType());
         }
@@ -91,11 +112,47 @@ public class ServerThread extends BaseServerThread {
             info("Received client connect payload but client is already initialized. Ignoring.");
             return;
         }
-        // TODO: could add validation for client name here (not blank, length limit,
-        // profanity filter, etc)
         setClientName(((ConnectionPayload) incoming).getClientName());
     }
-    // End region for process*() methods ===================================
+
+    private void processRPSChallenge(Payload incoming) {
+        info("Processing RPS challenge payload");
+        if (!(incoming instanceof RPSPayload)) {
+            info("Received invalid payload for RPS challenge: " + incoming);
+            return;
+        }
+        RPSPayload payload = (RPSPayload) incoming;
+        Server.INSTANCE.handleRPSChallenge(this, payload.getTargetUser());
+    }
+
+    private void processRPSAccept(Payload incoming) {
+        info("Processing RPS accept payload");
+        if (!(incoming instanceof RPSPayload)) {
+            info("Received invalid payload for RPS accept: " + incoming);
+            return;
+        }
+        RPSPayload payload = (RPSPayload) incoming;
+        Server.INSTANCE.handleRPSAccept(this, payload.isAccepted());
+    }
+
+    private void processRPSMove(Payload incoming) {
+        info("Processing RPS move payload");
+        if (!(incoming instanceof RPSPayload)) {
+            info("Received invalid payload for RPS move: " + incoming);
+            return;
+        }
+        RPSPayload payload = (RPSPayload) incoming;
+        Server.INSTANCE.handleRPSMove(this, payload.getMove());
+    }
+    
+    private void processRPSCancel(Payload incoming) {
+        info("Processing RPS cancel payload");
+        if (!(incoming instanceof RPSPayload)) {
+            info("Received invalid payload for RPS cancel: " + incoming);
+            return;
+        }
+        Server.INSTANCE.handleRPSCancel(this);
+    }    // End region for process*() methods ===================================
 
     // Start region for send*() methods ===================================
 

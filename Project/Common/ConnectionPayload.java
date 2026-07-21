@@ -1,4 +1,4 @@
-package M5.MCCS.Part2.Common;
+package Project.Common;
 
 public class ConnectionPayload extends Payload {
     private String clientName;
